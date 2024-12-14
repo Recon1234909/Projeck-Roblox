@@ -1,0 +1,66 @@
+local Plr = {}
+for i, v in pairs(game:GetService("Players"):GetChildren()) do
+    table.insert(Plr, v.Name)
+end
+
+local PlayerTP = nil
+local isFollowing = false  
+local originalCameraPosition = nil 
+
+
+Section:NewDropdown("Select Player!", "Click To Select", Plr, function(t)
+    PlayerTP = t
+end)
+
+
+Section:NewButton("Click To TP", "", function()
+    if PlayerTP then
+        local targetPlayer = game.Players[PlayerTP]
+        if targetPlayer and targetPlayer.Character then
+            local targetHumanoidRootPart = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if targetHumanoidRootPart then
+              
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
+            end
+        end
+    end
+end)
+
+(Spectate)
+Section:NewButton("Click To Spectate Player", "Click to follow the selected player", function()
+    if PlayerTP then
+        local targetPlayer = game.Players[PlayerTP]
+        if targetPlayer and targetPlayer.Character then
+            local targetHumanoidRootPart = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if targetHumanoidRootPart then
+                
+               local camera = game.Workspace.CurrentCamera
+                originalCameraPosition = camera.CFrame 
+                camera.CameraType = Enum.CameraType.Scriptable
+                isFollowing = true 
+            end
+        end
+    end
+end)
+
+
+Section:NewButton("Stop Spectating", "Reset the camera to original position", function()
+    local camera = game.Workspace.CurrentCamera
+    camera.CameraType = Enum.CameraType.Custom  -- กลับไปใช้งานกล้องปกติ
+    isFollowing = false  -- หยุดติดตาม
+end)
+
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    if isFollowing and PlayerTP then
+        local targetPlayer = game.Players[PlayerTP]
+        if targetPlayer and targetPlayer.Character then
+            local targetHumanoidRootPart = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if targetHumanoidRootPart then
+                local camera = game.Workspace.CurrentCamera
+            
+                camera.CFrame = targetHumanoidRootPart.CFrame * CFrame.new(0, 5, 10)
+            end
+        end
+    end
+end)
